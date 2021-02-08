@@ -1,0 +1,135 @@
+<!--
+ Copyright (c) 2014, 2021, Oracle and/or its affiliates.
+ Licensed under The Universal Permissive License (UPL), Version 1.0
+ as shown at https://oss.oracle.com/licenses/upl/
+ -->
+<div class="oj-hybrid-padding">
+    <div class="oj-flex oj-lg-justify-content-center">
+        <div id="mainContent" class="oj-flex-item">
+            <h4>List of existing compute instances</h4>
+            <oj-table id="table" data="[[dataprovider]]" columns='[{"headerText": "Delete", "id": "column1", "sortable": "disabled"},
+            {"headerText": "Instance ID",
+            "field": "id", "sortable": "enabled"},
+              {"headerText": "Instance Name",
+               "field": "displayName", "sortable": "enabled"},
+               {"headerText": "Shape",
+               "field": "instanceShape", "sortable": "enabled"},
+               {"headerText": "Status",
+               "field": "lifecycleState", "sortable": "enabled"},
+               {"headerText": "Start/Stop",
+               "field": "startStop", "sortable": "disabled"},
+               {"headerText": "Connection",
+               "field": "instanceConnection", "sortable": "disabled"}]' selection-mode='{"row": "none", "column": "none"}' class='demo-table-container' columns-default='{"resizable": "enabled"}'>
+                <template slot='rowTemplate' data-oj-as='row'>
+        <tr>
+          <td>
+            <oj-checkboxset aria-hidden='true' on-value-changed="[[enableDelete]]" class='oj-checkboxset-no-chrome' data-oj-clickthrough="disabled">
+              <oj-option :id="[[row.data.id]]" value="[[row.data.id]]"></oj-option>
+            </oj-checkboxset>
+          </td>
+          <td>
+            <div id="instId">
+<!--               <div data-bind="attr: {id: 'more' + [[row.data.id]]}" style="display: none;">
+                <oj-bind-text value="[[row.data.id]]"></oj-bind-text>        
+              </div> -->
+              <oj-bind-text value="[[showOCID(row.data.id)]]"></oj-bind-text>
+              <a data-bind="attr: {id: 'dots' + [[row.data.id]]}, click: showMore"
+             class="oj-link-standalone">
+                Show
+              </a>
+            </div>
+          </td>
+          <td>
+            <div id="instName">
+              <oj-bind-text value="[[row.data.displayName]]"></oj-bind-text>
+            </div>
+          </td>
+          <td>
+            <div id="instShape">
+              <oj-bind-text value="[[row.data.shape]]"></oj-bind-text>
+            </div>
+          </td>
+          <td>
+            <div id="instState">
+              <b><oj-bind-text value="[[row.data.lifecycleState]]"></oj-bind-text></b>
+            </div>
+          </td>
+          <td>
+            <div id="instStartStop">
+              <oj-bind-if id="startstop" test="[[startStopButtons(row.data.lifecycleState)]]">
+                <oj-button id="icon_button4" chroming="solid" on-oj-action="[[startStopImage]]">
+                  <span slot='startIcon' :class=[[setStatusIcon(row.data.lifecycleState)]]></span>
+                  <oj-bind-text value="[[checkInstanceStatus(row.data.lifecycleState)]]"></oj-bind-text>
+              </oj-button>
+              </oj-bind-if>
+            </div>
+          </td>
+          <td>
+            <div id="instConnection">
+              <oj-button id="icon_button2" chroming="solid" disabled="[[checkConnection(row.data.lifecycleState)]]" on-oj-action="[[openURL]]">
+                <span slot='startIcon' class="oj-ux-ico-information"></span>
+                Click to open
+            </oj-button>
+            </div>
+          </td>
+        </tr>
+      </template>
+            </oj-table>
+            <br /><br />
+            <oj-button id="deleteinst_btn" disabled="[[!somethingChecked()]]" on-oj-action="[[removeInstance]]">Delete Selected Instance(s)
+            </oj-button>
+            <oj-button id="buttonOpener" on-oj-action="[[open]]">
+                Create New Instance
+            </oj-button>
+        </div>
+        <div id="dialogWrapper">
+            <oj-dialog id="modalDialog1" dialog-title="Provision a new instance">
+                <div slot="body">
+                    <!-- A simple form is used to add a new Instance record. -->
+                    <oj-validation-group id="tracker" valid="{{groupValid}}">
+                        <oj-form-layout>
+                            <oj-label id="inputgroup" label-id="inputgrouplabel">Instance Name</oj-label>
+                            <div aria-labelledby="inputgrouplabel" role="group">
+                                <oj-input-text id="newInstanceName" value="{{newInstanceName}}" placeholder="enter new name" label-hint="Instance Name" required disabled="[[disableAdd]]" validators='[[validators]]'></oj-input-text>
+                                <oj-label id="inputgroup" label-id="inputgrouplabel">Instance Shape</oj-label>
+                                <oj-select-single id="newInstanceShape" label-hint="Select Shape" required label-edge="inside" class="oj-form-control-max-width-md" data="[[shapes]]" value="{{newInstanceShape}}" item-text="[[getItemText]]" disabled="[[disableAdd]]">
+                                </oj-select-single>
+                            </div>
+                        </oj-form-layout>
+                        <oj-bind-if id="iftest1" test="[[instanceAddInfo]]">
+                            <oj-messages messages="[[messagesDataproviderInfo]]" display-options.category="none">
+                                <template slot="messageTemplate" data-oj-as="message">
+                <oj-message message="[[message.data]]">
+                </oj-message>
+              </template>
+                            </oj-messages>
+                        </oj-bind-if>
+                        <oj-bind-if id="iftest2" test="[[instanceAddConfirmation]]">
+                            <oj-messages messages="[[messagesDataproviderConfirmation]]" display-options.category="none">
+                                <template slot="messageTemplate" data-oj-as="message">
+              <oj-message message="[[message.data]]">
+              </oj-message>
+            </template>
+                            </oj-messages>
+                        </oj-bind-if>
+                </div>
+                <div slot="footer">
+                    <oj-button id="saveBtn" disabled="[[disableAdd]]" on-oj-action="[[addInstance]]">Add Instance</oj-button>
+                    <oj-button id="okButton" disabled="[[disableAdd]]" on-oj-action="[[close]]">Close
+                    </oj-button>
+                </div>
+            </oj-dialog>
+        </div>
+
+        <div class="oj-flex-item" style="margin-top:20px">
+            <oj-bind-if id="iftest3" test="[[instanceDeleteInfo]]">
+                <oj-messages messages="[[messagesDataproviderConfirmationDeletion]]" display-options.category="none">
+                    <template slot="messageTemplate" data-oj-as="message">
+    <oj-message message="[[message.data]]">
+    </oj-message>
+  </template>
+                </oj-messages>
+            </oj-bind-if>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,30 @@
+/*
+    Document   : override
+    Created on : <date>
+    Author     : <author>
+    Description:
+        This is where any of your application specific styles should be included
+*/
+
+.sendOffScreen {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.fls-margin-message {
+    margin-top: 130px;
+}
+
+#modalDialog1 {
+    width: 30rem;
+    height: 35rem;
+}
+
+.demo-table-container {
+    /* width: 100%;
+    height: 25rem; */
+}

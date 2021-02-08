@@ -1,0 +1,17 @@
+{
+  "name": "fls-ojet-ui",
+  "version": "1.0.0",
+  "description": "An Oracle JavaScript Extension Toolkit(JET) web app",
+  "dependencies": {
+    "@okta/okta-signin-widget": "^5.1.5",
+    "@oracle/oraclejet": "~10.0.0",
+    "jquery-mockjax": "^2.6.0"
+  },
+  "devDependencies": {
+    "@oracle/oraclejet-tooling": "~10.0.0"
+  },
+  "engines": {
+    "node": ">=10.13.0"
+  },
+  "private": true
+}

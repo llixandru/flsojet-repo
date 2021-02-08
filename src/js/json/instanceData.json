@@ -1,0 +1,11 @@
+[{
+    "InstanceId": 1,
+    "InstanceName": "test1",
+    "InstanceShape": "VM.Standard.E3.2",
+    "InstanceConnection": "http://connection-link3/"
+}, {
+    "InstanceId": 2,
+    "InstanceName": "test2",
+    "InstanceShape": "VM.Standard.E3.2",
+    "InstanceConnection": "http://connection-link3/"
+}]
