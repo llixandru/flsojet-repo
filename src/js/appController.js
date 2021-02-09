@@ -28,9 +28,9 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojrespon
             this.domain = "dev-68999355.okta.com"
             this.oktaSignIn = new OktaSignIn({
                 baseUrl: "https://dev-68999355.okta.com",
-                clientId: "0oa55av80khTm3IDS5d6",
-                redirectUri: 'http://localhost:8000/?ojr=dashboard',
-                postLogoutRedirectUri: 'http://localhost:8000/?ojr=login',
+                clientId: "0oa5jqfi6kJZpHmQf5d6",
+                redirectUri: 'http://130.61.116.146:8000/?ojr=dashboard',
+                postLogoutRedirectUri: 'http://130.61.116.146:8000/?ojr=login',
                 authParams: {
                     issuer: "https://dev-68999355.okta.com/oauth2/default"
                 }
