@@ -36,6 +36,7 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojrespon
                 }
             });
 
+
             document.getElementById('globalBody').addEventListener('announce', announcementHandler, false);
 
             // Media queries for repsonsive layouts
@@ -65,11 +66,23 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojrespon
             // Application Name used in Branding Area
             this.appName = ko.observable("FLS Demo");
             // User Info used in Global Navigation area
-            this.userLogin = ko.observable();
+            var self = this
+            self.userLogin = ko.observable()
+
+            this.oktaSignIn.authClient.token.getUserInfo().then(function(user) {
+                //route to dashboard and set user
+                self.userLogin(user.email)
+            }, error => {
+                this.router.go({ path: 'login' })
+                    .then(function() {
+                        this.navigated = true;
+                    })
+            })
 
             this.userLogin.subscribe(newValue => {
                 this.disabledMenu(false);
             })
+
 
             this.logout = () => {
                 this.oktaSignIn.authClient.signOut()

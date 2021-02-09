@@ -8,8 +8,8 @@
 /*
  * Your dashboard ViewModel code goes here
  */
-define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedatasource', "ojs/ojasyncvalidator-regexp", "ojs/ojknockout", "ojs/ojtable", "ojs/ojcheckboxset", "ojs/ojinputnumber", "ojs/ojinputtext", "ojs/ojdialog", "ojs/ojbutton", "ojs/ojformlayout", "ojs/ojselectsingle", "ojs/ojmessages", "ojs/ojvalidationgroup", "ojs/ojdialog", "ojs/ojdefer", 'ojs/ojrowexpander', 'ojs/ojpagingcontrol', 'ojs/ojpagingtabledatasource', 'ojs/ojflattenedtreetabledatasource'],
-    function(accUtils, ko, ArrayDataProvider, JsonTreeDataSource, AsyncRegExpValidator) {
+define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "ojs/ojasyncvalidator-regexp", "ojs/ojknockout", "ojs/ojtable", "ojs/ojcheckboxset", "ojs/ojinputnumber", "ojs/ojinputtext", "ojs/ojdialog", "ojs/ojbutton", "ojs/ojformlayout", "ojs/ojselectsingle", "ojs/ojmessages", "ojs/ojvalidationgroup", "ojs/ojdialog", "ojs/ojdefer", "ojs/ojpopup"],
+    function(accUtils, ko, AnimationUtils, ArrayDataProvider, AsyncRegExpValidator) {
         function DashboardViewModel() {
             // Below are a set of the ViewModel methods invoked by the oj-module component.
             // Please reference the oj-module jsDoc for additional information.
@@ -39,10 +39,12 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                 this.messagesDataproviderInfo = ko.observable()
                 this.messagesDataproviderConfirmation = ko.observable()
                 this.messagesDataproviderConfirmationDeletion = ko.observable()
+                this.messagesDataproviderError = ko.observable()
 
                 this.instanceAddInfo = ko.observable(false)
                 this.instanceDeleteInfo = ko.observable(false)
                 this.instanceAddConfirmation = ko.observable(false)
+                this.instanceError = ko.observable(false)
                     // end messages
 
                 this.somethingChecked = ko.observable(false);
@@ -52,6 +54,8 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                 this.newInstanceName = ko.observable("");
                 this.newInstanceShape = ko.observable("");
                 this.workingId = ko.observable("");
+
+                this.vncPass = ko.observable("");
 
                 //validator for instance name
                 this.groupValid = ko.observable("invalidHidden");
@@ -123,9 +127,7 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                     const start = async() => {
                         await asyncForEach(instanceIds, async(id) => {
                             await deleteInstance(id)
-                            console.log(id)
                         })
-                        console.log('Done')
                     }
                     start()
 
@@ -170,13 +172,21 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                 };
 
                 fetch(baseUrl + "/shapes", requestOptionsShape)
-                    .then(resShape => resShape.text())
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => { throw text })
+                        }
+                        return response.text();
+                    })
                     .then(resultShape => {
                         this.shapes(new ArrayDataProvider(JSON.parse(resultShape), {
                             keyAttributes: "shape"
                         }));
                     })
-                    .catch(error => console.log('error', error));
+                    .catch(error => {
+                        //console.log('error', error)
+                        onRejected(error)
+                    });
 
                 this.getItemText = (itemContext) => {
                     return `${itemContext.data.shape}`;
@@ -192,7 +202,12 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                     };
 
                     fetch(baseUrl + "/instances", requestOptions)
-                        .then(response => response.text())
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.text().then(text => { throw text })
+                            }
+                            return response.text();
+                        })
                         .then(result => {
                             this.dataprovider(new ArrayDataProvider(JSON.parse(result), {
                                 keyAttributes: "id",
@@ -200,7 +215,10 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                             }))
 
                         })
-                        .catch(error => console.log('error', error));
+                        .catch(error => {
+                            //console.log('error', error)
+                            onRejected(error)
+                        });
                 }
 
                 //get Public IP of instance
@@ -217,13 +235,21 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                         redirect: 'follow'
                     };
                     fetch(baseUrl + "/publicip/" + id, requestOptions)
-                        .then(response => response.text())
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.text().then(text => { throw text })
+                            }
+                            return response.text();
+                        })
                         .then(result => {
                             let uri = encodeURIComponent(JSON.parse(result))
                             let url = new URL("http://" + uri)
                             window.open(url)
                         })
-                        .catch(error => console.log('error', error));
+                        .catch(error => {
+                            //console.log('error', error)
+                            onRejected(error)
+                        });
                 }
 
 
@@ -259,8 +285,8 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                 }
 
                 this.startStopImage = function(data, event) {
-                    if (event.data.lifecycleState === "RUNNING") stopImage(event.data.id)
-                    else if (event.data.lifecycleState === "STOPPED") startImage(event.data.id)
+                    if (event.data.lifecycleState == "RUNNING") stopImage(event.data.id)
+                    else if (event.data.lifecycleState == "STOPPED") startImage(event.data.id)
                 }
 
                 function startImage(id) {
@@ -268,17 +294,24 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                         method: 'GET',
                         redirect: 'follow'
                     };
-
                     setTimeout(() => {
                         getInstances()
                     }, 2000);
 
                     fetch(baseUrl + "/start/" + id, requestOptions)
-                        .then(response => response.text())
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.text().then(text => { throw text })
+                            }
+                            return response.text();
+                        })
                         .then(result => {
                             getInstances()
                         })
-                        .catch(error => console.log('error', error));
+                        .catch(error => {
+                            //console.log('error', error)
+                            onRejected(error)
+                        });
                 }
 
                 function stopImage(id) {
@@ -292,11 +325,19 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                     }, 2000);
 
                     fetch(baseUrl + "/stop/" + id, requestOptions)
-                        .then(response => { response.text() })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.text().then(text => { throw text })
+                            }
+                            return response.text();
+                        })
                         .then(result => {
                             getInstances()
                         })
-                        .catch(error => console.log('error', error));
+                        .catch(error => {
+                            //console.log('error', error)
+                            onRejected(error)
+                        });
                 }
 
                 //function to create new Instance
@@ -305,10 +346,6 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                     myHeaders.append("Content-Type", "application/json");
 
                     var raw = JSON.stringify({ "instanceName": name, "instanceShape": shape });
-
-                    //reset the form fields
-                    this.newInstanceName("")
-                    this.newInstanceShape("")
 
                     //disable button
                     this.disableAdd(true)
@@ -321,25 +358,44 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                     };
 
                     fetch(baseUrl + "/instances", requestOptionsCreate)
-                        .then(response => response.text())
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.text().then(text => { throw text })
+                            }
+                            return response.text();
+                        })
                         .then(result => {
+                            //reset the form fields
+                            this.newInstanceName("")
+                            this.newInstanceShape("")
+
+                            //get the VNC password
+                            let resp = JSON.parse(result)
+                            this.vncPass(resp.password)
+
+                            //create the confirmation message
                             this.messagesConfirmation = [{
                                 severity: "confirmation",
                                 summary: "The instance has been successfully provisioned.",
                                 timestamp: isoTimeNow,
-                                autoTimeout: parseInt(this.messageTimeout(), 10),
                                 closeAffordance: "none"
                             }];
                             this.messagesDataproviderConfirmation(new ArrayDataProvider(this.messagesConfirmation))
                             this.instanceAddInfo(false)
                             this.instanceAddConfirmation(true)
 
+                            //show the VNC password
+                            this.openListener()
+
                             //refresh the list
                             getInstances()
                                 //enable button
                             this.disableAdd(false)
                         })
-                        .catch(error => console.log('error', error));
+                        .catch(error => {
+                            //console.log('error', error)
+                            onRejected(error)
+                        });
                 }
 
                 const deleteInstance = id => {
@@ -357,7 +413,12 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                         this.messagesDataproviderConfirmationDeletion(new ArrayDataProvider(this.messagesConfirmationDeletion))
 
                         fetch(baseUrl + "/instances/" + id, requestOptions)
-                            .then(response => response.text())
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.text().then(text => { throw text })
+                                }
+                                return response.text();
+                            })
                             .then(result => {
                                 this.messagesConfirmationDeletion.push({
                                     severity: "confirmation",
@@ -370,8 +431,25 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                                 getInstances()
                                 resolve("Instance deleted")
                             })
-                            .catch(error => console.log('error', error));
+                            .catch(error => {
+                                //console.log(error)
+                                onRejected(error)
+                            });
                     })
+                }
+
+                //error handling
+                const onRejected = err => {
+                    let error = JSON.parse(err)
+                    this.messagesError = [{
+                        severity: "error",
+                        summary: error.error.statusCode + ": " + error.error.serviceCode,
+                        timestamp: isoTimeNow,
+                        closeAffordance: "none",
+                        autoTimeout: parseInt(this.messageTimeout(), 10)
+                    }];
+                    this.messagesDataproviderError(new ArrayDataProvider(this.messagesError));
+                    this.instanceError(true)
                 }
 
                 //modal controls
@@ -380,6 +458,30 @@ define(['accUtils', "knockout", "ojs/ojarraydataprovider", 'ojs/ojjsontreedataso
                 }
                 this.open = function() {
                     document.getElementById("modalDialog1").open();
+                }
+
+                //pop-up controls
+                this.startAnimationListener = (event) => {
+                    let ui = event.detail;
+                    if (event.target.id !== "popup1") {
+                        return;
+                    }
+                    if (ui.action === "open") {
+                        event.preventDefault();
+                        let options = { direction: "bottom" };
+                        AnimationUtils.slideIn(ui.element, options).then(ui.endCallback);
+                    } else if (ui.action === "close") {
+                        event.preventDefault();
+                        ui.endCallback();
+                    }
+                };
+                this.openListener = function() {
+                    let popup = document.getElementById("popup1");
+                    popup.open();
+                }
+                this.cancelListener = function() {
+                    let popup = document.getElementById("popup1");
+                    popup.close();
                 }
 
             };

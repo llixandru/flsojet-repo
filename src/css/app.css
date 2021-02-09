@@ -24,6 +24,29 @@
     height: 35rem;
 }
 
+.demo-popup {}
+
+.demo-popup-body {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.demo-popup-header {
+    align-self: flex-start;
+    margin-bottom: 10px;
+}
+
+.demo-popup-content {
+    align-self: stretch;
+    overflow: auto;
+}
+
+.demo-popup-footer {
+    align-self: flex-end;
+    margin-top: 10px;
+}
+
 .demo-table-container {
     /* width: 100%;
     height: 25rem; */

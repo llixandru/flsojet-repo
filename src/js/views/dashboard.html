@@ -33,10 +33,10 @@
                 <oj-bind-text value="[[row.data.id]]"></oj-bind-text>        
               </div> -->
               <oj-bind-text value="[[showOCID(row.data.id)]]"></oj-bind-text>
-              <a data-bind="attr: {id: 'dots' + [[row.data.id]]}, click: showMore"
+              <!-- <a data-bind="attr: {id: 'dots' + [[row.data.id]]}, click: showMore"
              class="oj-link-standalone">
                 Show
-              </a>
+              </a> -->
             </div>
           </td>
           <td>
@@ -120,7 +120,25 @@
                 </div>
             </oj-dialog>
         </div>
-
+        <div id="popupWrapper">
+            <oj-popup id="popup1" class="demo-popup" tail="none" position.my.horizontal="center" position.my.vertical="center" position.at.horizontal="center" position.at.vertical="center" position.of="window" position.offset.y="-10" modality="modal" on-oj-animate-start="[[startAnimationListener]]">
+                <div class="demo-popup-body">
+                    <div class="demo-popup-header">
+                        <h5>VNC Password</h5>
+                    </div>
+                    <div class="demo-popup-content">
+                        <p>Your VNC password is <b><oj-bind-text id="vncpass" value="[[vncPass]]">
+                        </oj-bind-text></b></p>
+                        <p>Please write down this password as it will not be shown again.</p>
+                    </div>
+                    <div class="demo-popup-footer">
+                        <oj-button id="btnCancel" on-oj-action="[[cancelListener]]">
+                            Close
+                        </oj-button>
+                    </div>
+                </div>
+            </oj-popup>
+        </div>
         <div class="oj-flex-item" style="margin-top:20px">
             <oj-bind-if id="iftest3" test="[[instanceDeleteInfo]]">
                 <oj-messages messages="[[messagesDataproviderConfirmationDeletion]]" display-options.category="none">
@@ -128,6 +146,16 @@
     <oj-message message="[[message.data]]">
     </oj-message>
   </template>
+                </oj-messages>
+            </oj-bind-if>
+        </div>
+        <div class="oj-flex-item" style="margin-top:40px">
+            <oj-bind-if id="iftest4" test="[[instanceError]]">
+                <oj-messages messages="[[messagesDataproviderError]]" display-options.category="none">
+                    <template slot="messageTemplate" data-oj-as="message">
+<oj-message message="[[message.data]]">
+</oj-message>
+</template>
                 </oj-messages>
             </oj-bind-if>
         </div>
