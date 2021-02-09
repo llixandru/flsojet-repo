@@ -85,6 +85,8 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojrespon
 
 
             this.logout = () => {
+                self.userLogin("")
+                this.disabledMenu(true)
                 this.oktaSignIn.authClient.tokenManager.clear()
                 this.router.go({ path: 'login' })
                     .then(function() {
