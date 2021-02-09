@@ -85,7 +85,12 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojrespon
 
 
             this.logout = () => {
-                this.oktaSignIn.authClient.signOut()
+                this.oktaSignIn.authClient.tokenManager.clear()
+                this.router.go({ path: 'login' })
+                    .then(function() {
+                        this.navigated = true;
+                    })
+
             }
 
             // Footer
