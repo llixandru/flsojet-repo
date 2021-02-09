@@ -360,6 +360,7 @@ define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "o
                     fetch(baseUrl + "/instances", requestOptionsCreate)
                         .then(response => {
                             if (!response.ok) {
+                                this.close()
                                 return response.text().then(text => { throw text })
                             }
                             return response.text();
