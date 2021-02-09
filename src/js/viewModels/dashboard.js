@@ -368,6 +368,7 @@ define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "o
                                 this.disableAdd(false)
                                     //hide messages
                                 this.instanceAddInfo(false)
+                                this.instanceAddConfirmation(false)
                                 return response.text().then(text => { throw text })
                             }
                             return response.text();
