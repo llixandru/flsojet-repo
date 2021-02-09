@@ -361,6 +361,13 @@ define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "o
                         .then(response => {
                             if (!response.ok) {
                                 this.close()
+                                    //reset the form fields
+                                this.newInstanceName("")
+                                this.newInstanceShape("")
+                                    //enable button
+                                this.disableAdd(false)
+                                    //hide messages
+                                this.instanceAddInfo(false)
                                 return response.text().then(text => { throw text })
                             }
                             return response.text();
