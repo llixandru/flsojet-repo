@@ -167,8 +167,7 @@ define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "o
                 this.selectVal = ko.observable()
                 this.shapes = ko.observable()
                 var requestOptionsShape = {
-                    method: 'GET',
-                    redirect: 'follow'
+                    method: 'GET'
                 };
 
                 fetch(baseUrl + "/shapes", requestOptionsShape)
@@ -464,6 +463,8 @@ define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "o
                 //modal controls
                 this.close = function() {
                     document.getElementById("modalDialog1").close();
+                    //close the provisioning message
+                    this.instanceAddConfirmation(false)
                 }
                 this.open = function() {
                     document.getElementById("modalDialog1").open();
