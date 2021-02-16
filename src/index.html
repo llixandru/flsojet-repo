@@ -87,6 +87,10 @@
                 </div>
                 <div class="oj-flex-bar-end">
                     <!-- Responsive Toolbar -->
+                    <oj-bind-if id="testregion" test="[[userLogin]]">
+                        <oj-select-single id="select1" disabled=[[disabledMenu]] label-hint="Select Region" label-edge="inside" class="oj-form-control-max-width-md demo-text-field-info" data="[[regions]]" value="{{selectedRegion}}" style="width: 18em;">
+                        </oj-select-single>
+                    </oj-bind-if>
                     <oj-toolbar>
                         <oj-menu-button disabled=[[disabledMenu]] id="userMenu" display="[[smScreen() ? 'icons' : 'all']]" chroming="borderless">
                             <span><oj-bind-text value="[[userLogin]]"></oj-bind-text></span>

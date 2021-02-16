@@ -8,7 +8,7 @@
 /*
  * Your application specific code will go here
  */
-define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojresponsiveutils', 'ojs/ojresponsiveknockoututils', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojknockoutrouteradapter', 'ojs/ojurlparamadapter', 'ojs/ojarraydataprovider', 'ojs/ojknockouttemplateutils', 'ojs/ojmodule-element', 'ojs/ojknockout'],
+define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojresponsiveutils', 'ojs/ojresponsiveknockoututils', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojknockoutrouteradapter', 'ojs/ojurlparamadapter', 'ojs/ojarraydataprovider', 'ojs/ojknockouttemplateutils', 'ojs/ojmodule-element', 'ojs/ojknockout', 'ojs/ojselectsingle'],
     function(ko, Context, moduleUtils, ResponsiveUtils, ResponsiveKnockoutUtils, CoreRouter, ModuleRouterAdapter, KnockoutRouterAdapter, UrlParamAdapter, ArrayDataProvider, KnockoutTemplateUtils) {
 
         function ControllerViewModel() {
@@ -81,8 +81,8 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojrespon
                     })
             })
 
-            this.userLogin.subscribe(newValue => {
-                this.disabledMenu(false);
+            self.userLogin.subscribe(newValue => {
+                this.disabledMenu(false)
             })
 
 
@@ -96,6 +96,48 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojrespon
                     })
 
             }
+
+            //Get JWT Token
+            this.apiToken = ko.observable()
+
+            this.authToJWT = function() {
+                return new Promise((resolve, reject) => {
+                    var myHeaders = new Headers();
+                    myHeaders.append("Content-Type", "application/json");
+
+                    var raw = JSON.stringify({ "email": self.userLogin(), "password": "JUST#test#2021" });
+
+                    var requestOptions = {
+                        method: 'POST',
+                        headers: myHeaders,
+                        body: raw,
+                        redirect: 'follow'
+                    };
+
+                    fetch("https://localhost:3000/auth", requestOptions)
+                        .then(response => response.text())
+                        .then(result => {
+                            let data = JSON.parse(result)
+                            let token = "Bearer " + data.token
+                            resolve(token)
+                            this.apiToken()
+                        })
+                        .catch(error => {
+                            reject(error)
+                        })
+                })
+            }
+
+            //Region selection
+            this.selectedRegion = ko.observable("eu-frankfurt-1");
+            this.regionList = [
+                { value: "eu-frankfurt-1", label: "Germany Central (Frankfurt)" },
+                { value: "jp-tokyo-1", label: "Japan East (Tokyo)" },
+                { value: "uk-south-1", label: "UK South" }
+            ];
+            this.regions = new ArrayDataProvider(this.regionList, {
+                keyAttributes: "value",
+            })
 
             // Footer
             this.footerLinks = [

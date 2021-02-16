@@ -26,9 +26,9 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 accUtils.announce('Dashboard page loaded.');
                 document.title = "Dashboard";
                 // Implement further logic if needed
-
-                //NodeJS API
-                let baseUrl = "http://localhost:3000"
+                let self = this
+                    //NodeJS API
+                let baseUrl = "https://localhost:3000/oci"
 
                 //messages
                 const isoTimeNow = new Date().toISOString();
@@ -58,10 +58,10 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 this.vncPass = ko.observable("");
                 this.createdInstance = ko.observable("");
 
-                this.instanceOwner = ko.observable(app.userLogin())
+                self.instanceOwner = ko.observable(app.userLogin())
 
                 app.userLogin.subscribe(newValue => {
-                    this.instanceOwner(newValue)
+                    self.instanceOwner(newValue)
                 })
 
 
@@ -155,7 +155,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                         this.messagesDataproviderInfo(new ArrayDataProvider(this.messagesInfo));
                         this.instanceAddInfo(true)
                             //Call the API
-                        createInstance(this.newInstanceName(), this.newInstanceShape(), this.instanceOwner())
+                        createInstance(this.newInstanceName(), this.newInstanceShape(), self.instanceOwner())
                     }
                 };
 
@@ -174,27 +174,37 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
 
                 //get Shapes for select
                 this.selectVal = ko.observable()
-                this.shapes = ko.observable()
-                var requestOptionsShape = {
-                    method: 'GET'
-                };
+                self.shapes = ko.observable()
 
-                fetch(baseUrl + "/shapes", requestOptionsShape)
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.text().then(text => { throw text })
-                        }
-                        return response.text();
-                    })
-                    .then(resultShape => {
-                        this.shapes(new ArrayDataProvider(JSON.parse(resultShape), {
-                            keyAttributes: "shape"
-                        }));
-                    })
-                    .catch(error => {
-                        //console.log('error', error)
-                        onRejected(error)
-                    });
+                async function getShapes() {
+                    let token = await app.authToJWT()
+                    var myHeaders = new Headers();
+                    myHeaders.append("Content-Type", "application/json")
+                    myHeaders.append("Authorization", token)
+
+                    var requestOptionsShape = {
+                        method: 'GET',
+                        headers: myHeaders
+                    };
+
+                    fetch(baseUrl + "/shapes", requestOptionsShape)
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.text().then(text => { throw text })
+                            }
+                            return response.text();
+                        })
+                        .then(resultShape => {
+                            self.shapes(new ArrayDataProvider(JSON.parse(resultShape), {
+                                keyAttributes: "shape"
+                            }));
+                        })
+                        .catch(error => {
+                            onRejected(error)
+                        });
+                }
+
+                getShapes()
 
                 this.getItemText = (itemContext) => {
                     return `${itemContext.data.shape}`;
@@ -203,10 +213,13 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 var options = [];
 
                 //function to get all Instances
-                const getInstances = () => {
+                async function getInstances() {
+                    let token = await app.authToJWT()
                     var myHeaders = new Headers()
                     myHeaders.append("Content-Type", "application/json")
-                    var raw = JSON.stringify({ "instanceOwner": this.instanceOwner() })
+                    myHeaders.append("Authorization", token)
+
+                    var raw = JSON.stringify({ "instanceOwner": self.instanceOwner() })
 
                     var requestOptions = {
                         method: 'POST',
@@ -223,7 +236,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                             return response.text();
                         })
                         .then(result => {
-                            this.dataprovider(new ArrayDataProvider(JSON.parse(result), {
+                            self.dataprovider(new ArrayDataProvider(JSON.parse(result), {
                                 keyAttributes: "id",
                                 implicitSort: [{ attribute: "id", direction: "ascending" }],
                             }))
@@ -235,19 +248,22 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                         });
                 }
 
-                //get Public IP of instance
-                /*                 function connectVNC(id, state) {
-                                    if (state === "RUNNING") {
-                                        getPublicIP(id)
-                                    } else return;
-                                }
-                 */
                 this.openURL = function(data, event) {
                     const id = event.data.id
+                    getIPAddress(id)
+                }
+
+                async function getIPAddress(id) {
+                    var myHeaders = new Headers()
+                    let token = await app.authToJWT()
+                    myHeaders.append("Content-Type", "application/json")
+                    myHeaders.append("Authorization", token)
+
                     var requestOptions = {
                         method: 'GET',
-                        redirect: 'follow'
+                        headers: myHeaders
                     };
+
                     fetch(baseUrl + "/publicip/" + id, requestOptions)
                         .then(response => {
                             if (!response.ok) {
@@ -270,7 +286,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 //get data from endpoint
                 this.dataprovider = ko.observable()
 
-                if (this.instanceOwner()) getInstances()
+                if (self.instanceOwner()) getInstances()
                 else
                     app.userLogin.subscribe(newValue => {
                         getInstances()
@@ -308,10 +324,16 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                     else if (event.data.lifecycleState == "STOPPED") startImage(event.data.id)
                 }
 
-                function startImage(id) {
+                async function startImage(id) {
+
+                    var myHeaders = new Headers()
+                    let token = await app.authToJWT()
+                    myHeaders.append("Content-Type", "application/json")
+                    myHeaders.append("Authorization", token)
+
                     var requestOptions = {
                         method: 'GET',
-                        redirect: 'follow'
+                        headers: myHeaders
                     };
 
                     setTimeout(() => {
@@ -334,10 +356,15 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                         });
                 }
 
-                function stopImage(id) {
+                async function stopImage(id) {
+                    var myHeaders = new Headers()
+                    let token = await app.authToJWT()
+                    myHeaders.append("Content-Type", "application/json")
+                    myHeaders.append("Authorization", token)
+
                     var requestOptions = {
                         method: 'GET',
-                        redirect: 'follow'
+                        headers: myHeaders
                     };
 
                     setTimeout(() => {
@@ -361,23 +388,25 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 }
 
                 //function to create new Instance
-                const createInstance = (name, shape, owner) => {
+                async function createInstance(name, shape, owner) {
 
-                    this.close()
+                    self.close()
 
                     var myHeaders = new Headers();
+                    let token = await app.authToJWT()
                     myHeaders.append("Content-Type", "application/json");
+                    myHeaders.append("Authorization", token)
 
                     var raw = JSON.stringify({ "instanceName": name, "instanceShape": shape, "instanceOwner": owner });
 
-                    this.createdInstance(name)
+                    self.createdInstance(name)
 
                     //disable button
                     //this.disableAdd(true)
 
                     //reset the form fields
-                    this.newInstanceName("")
-                    this.newInstanceShape("")
+                    self.newInstanceName("")
+                    self.newInstanceShape("")
 
                     setTimeout(() => {
                         getInstances()
@@ -386,8 +415,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                     var requestOptionsCreate = {
                         method: 'POST',
                         headers: myHeaders,
-                        body: raw,
-                        redirect: 'follow'
+                        body: raw
                     }
 
                     fetch(baseUrl + "/instances", requestOptionsCreate)
@@ -396,8 +424,8 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                                 //enable button
                                 //this.disableAdd(false)
                                 //hide messages
-                                this.instanceAddInfo(false)
-                                this.instanceAddConfirmation(false)
+                                self.instanceAddInfo(false)
+                                self.instanceAddConfirmation(false)
                                 return response.text().then(text => { throw text })
                             }
                             return response.text();
@@ -405,22 +433,22 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                         .then(result => {
                             //get the VNC password
                             let resp = JSON.parse(result)
-                            this.vncPass(resp.password)
+                            self.vncPass(resp.password)
 
                             //create the confirmation message
-                            this.messagesConfirmation = [{
+                            self.messagesConfirmation = [{
                                 severity: "confirmation",
                                 summary: "The instance has been successfully provisioned.",
                                 timestamp: isoTimeNow,
                                 closeAffordance: "none",
-                                autoTimeout: parseInt(this.messageTimeout(), 10)
+                                autoTimeout: parseInt(self.messageTimeout(), 10)
                             }];
-                            this.messagesDataproviderConfirmation(new ArrayDataProvider(this.messagesConfirmation))
-                            this.instanceAddInfo(false)
-                            this.instanceAddConfirmation(true)
+                            self.messagesDataproviderConfirmation(new ArrayDataProvider(self.messagesConfirmation))
+                            self.instanceAddInfo(false)
+                            self.instanceAddConfirmation(true)
 
                             //show the VNC password
-                            this.openListener()
+                            self.openListener()
 
                             //refresh the list
                             getInstances()
@@ -433,44 +461,42 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                         });
                 }
 
-                const deleteInstance = id => {
-                    new Promise(resolve => {
-                        var myHeaders = new Headers();
-                        myHeaders.append("Content-Type", "application/json");
+                async function deleteInstance(id) {
+                    var myHeaders = new Headers();
+                    let token = await app.authToJWT()
+                    myHeaders.append("Content-Type", "application/json");
+                    myHeaders.append("Authorization", token)
 
-                        var requestOptions = {
-                            method: 'DELETE',
-                            headers: myHeaders,
-                            redirect: 'follow'
-                        };
+                    var requestOptions = {
+                        method: 'DELETE',
+                        headers: myHeaders
+                    };
 
-                        this.messagesConfirmationDeletion = [];
-                        this.messagesDataproviderConfirmationDeletion(new ArrayDataProvider(this.messagesConfirmationDeletion))
+                    self.messagesConfirmationDeletion = [];
+                    self.messagesDataproviderConfirmationDeletion(new ArrayDataProvider(self.messagesConfirmationDeletion))
 
-                        fetch(baseUrl + "/instances/" + id, requestOptions)
-                            .then(response => {
-                                if (!response.ok) {
-                                    return response.text().then(text => { throw text })
-                                }
-                                return response.text();
+                    fetch(baseUrl + "/instances/" + id, requestOptions)
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.text().then(text => { throw text })
+                            }
+                            return response.text();
+                        })
+                        .then(result => {
+                            self.messagesConfirmationDeletion.push({
+                                severity: "confirmation",
+                                summary: "The instance(s) have been successfully deleted.",
+                                timestamp: isoTimeNow,
+                                autoTimeout: parseInt(self.messageTimeout(), 10),
+                                closeAffordance: "none"
                             })
-                            .then(result => {
-                                this.messagesConfirmationDeletion.push({
-                                    severity: "confirmation",
-                                    summary: "The instance(s) have been successfully deleted.",
-                                    timestamp: isoTimeNow,
-                                    autoTimeout: parseInt(this.messageTimeout(), 10),
-                                    closeAffordance: "none"
-                                })
-                                this.instanceDeleteInfo(true)
-                                getInstances()
-                                resolve("Instance deleted")
-                            })
-                            .catch(error => {
-                                //console.log(error)
-                                onRejected(error)
-                            });
-                    })
+                            self.instanceDeleteInfo(true)
+                            getInstances()
+                        })
+                        .catch(error => {
+                            //console.log(error)
+                            onRejected(error)
+                        });
                 }
 
                 //error handling
