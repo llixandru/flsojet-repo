@@ -149,7 +149,8 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                             severity: "info",
                             summary: "The instance is being provisioned, please wait.",
                             timestamp: isoTimeNow,
-                            closeAffordance: "none"
+                            closeAffordance: "none",
+                            autoTimeout: parseInt(this.messageTimeout(), 10)
                         }];
                         this.messagesDataproviderInfo(new ArrayDataProvider(this.messagesInfo));
                         this.instanceAddInfo(true)
