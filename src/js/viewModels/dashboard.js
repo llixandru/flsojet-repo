@@ -32,7 +32,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
 
                 //messages
                 const isoTimeNow = new Date().toISOString();
-                this.messageTimeout = ko.observable(5000)
+                this.messageTimeout = ko.observable(10000)
 
                 this.deletedId = ko.observable("");
 
