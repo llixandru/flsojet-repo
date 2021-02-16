@@ -28,7 +28,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 // Implement further logic if needed
 
                 //NodeJS API
-                let baseUrl = "https://localhost:3000"
+                let baseUrl = "http://localhost:3000"
 
                 //messages
                 const isoTimeNow = new Date().toISOString();
