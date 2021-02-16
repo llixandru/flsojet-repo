@@ -111,7 +111,8 @@
                         <h5>VNC Password</h5>
                     </div>
                     <div class="demo-popup-content">
-                        <p>Your VNC password is <b><oj-bind-text id="vncpass" value="[[vncPass]]">
+                        <p>Your VNC password for instance <b><oj-bind-text :id="instanceid + [[createdInstance]]" value="[[createdInstance]]">
+                        </oj-bind-text></b> is <b><oj-bind-text :id="vncpass + [[vncPass]]" value="[[vncPass]]">
                         </oj-bind-text></b></p>
                         <p>Please write down this password as it will not be shown again.</p>
                     </div>

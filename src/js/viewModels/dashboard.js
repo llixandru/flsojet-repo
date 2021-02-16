@@ -28,7 +28,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 // Implement further logic if needed
 
                 //NodeJS API
-                let baseUrl = "http://localhost:3000"
+                let baseUrl = "https://localhost:3000"
 
                 //messages
                 const isoTimeNow = new Date().toISOString();
@@ -56,12 +56,12 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 this.workingId = ko.observable("");
 
                 this.vncPass = ko.observable("");
+                this.createdInstance = ko.observable("");
 
                 this.instanceOwner = ko.observable(app.userLogin())
 
                 app.userLogin.subscribe(newValue => {
                     this.instanceOwner(newValue)
-                    console.log(this.instanceOwner())
                 })
 
 
@@ -206,7 +206,6 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 const getInstances = () => {
                     var myHeaders = new Headers()
                     myHeaders.append("Content-Type", "application/json")
-
                     var raw = JSON.stringify({ "instanceOwner": this.instanceOwner() })
 
                     var requestOptions = {
@@ -369,6 +368,8 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
 
                     var raw = JSON.stringify({ "instanceName": name, "instanceShape": shape, "instanceOwner": owner });
 
+                    this.createdInstance(name)
+
                     //disable button
                     //this.disableAdd(true)
 
@@ -454,7 +455,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                             .then(result => {
                                 this.messagesConfirmationDeletion.push({
                                     severity: "confirmation",
-                                    summary: "The instance with id " + id + " has been successfully deleted.",
+                                    summary: "The instance(s) have been successfully deleted.",
                                     timestamp: isoTimeNow,
                                     autoTimeout: parseInt(this.messageTimeout(), 10),
                                     closeAffordance: "none"
