@@ -270,9 +270,11 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 //get data from endpoint
                 this.dataprovider = ko.observable()
 
-                app.userLogin.subscribe(newValue => {
-                    getInstances()
-                })
+                if (this.instanceOwner()) getInstances()
+                else
+                    app.userLogin.subscribe(newValue => {
+                        getInstances()
+                    })
 
                 this.checkConnection = function(state) {
                     if (state === "RUNNING") return false
