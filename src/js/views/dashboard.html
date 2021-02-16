@@ -96,22 +96,6 @@
                                 </oj-select-single>
                             </div>
                         </oj-form-layout>
-                        <oj-bind-if id="iftest1" test="[[instanceAddInfo]]">
-                            <oj-messages messages="[[messagesDataproviderInfo]]" display-options.category="none">
-                                <template slot="messageTemplate" data-oj-as="message">
-                <oj-message message="[[message.data]]">
-                </oj-message>
-              </template>
-                            </oj-messages>
-                        </oj-bind-if>
-                        <oj-bind-if id="iftest2" test="[[instanceAddConfirmation]]">
-                            <oj-messages messages="[[messagesDataproviderConfirmation]]" display-options.category="none">
-                                <template slot="messageTemplate" data-oj-as="message">
-              <oj-message message="[[message.data]]">
-              </oj-message>
-            </template>
-                            </oj-messages>
-                        </oj-bind-if>
                 </div>
                 <div slot="footer">
                     <oj-button id="saveBtn" disabled="[[disableAdd]]" on-oj-action="[[addInstance]]">Add Instance</oj-button>
@@ -146,6 +130,22 @@
     <oj-message message="[[message.data]]">
     </oj-message>
   </template>
+                </oj-messages>
+            </oj-bind-if>
+            <oj-bind-if id="iftest1" test="[[instanceAddInfo]]">
+                <oj-messages messages="[[messagesDataproviderInfo]]" display-options.category="none">
+                    <template slot="messageTemplate" data-oj-as="message">
+  <oj-message message="[[message.data]]">
+  </oj-message>
+</template>
+                </oj-messages>
+            </oj-bind-if>
+            <oj-bind-if id="iftest2" test="[[instanceAddConfirmation]]">
+                <oj-messages messages="[[messagesDataproviderConfirmation]]" display-options.category="none">
+                    <template slot="messageTemplate" data-oj-as="message">
+<oj-message message="[[message.data]]">
+</oj-message>
+</template>
                 </oj-messages>
             </oj-bind-if>
         </div>

@@ -8,8 +8,8 @@
 /*
  * Your dashboard ViewModel code goes here
  */
-define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "ojs/ojasyncvalidator-regexp", "ojs/ojknockout", "ojs/ojtable", "ojs/ojcheckboxset", "ojs/ojinputnumber", "ojs/ojinputtext", "ojs/ojdialog", "ojs/ojbutton", "ojs/ojformlayout", "ojs/ojselectsingle", "ojs/ojmessages", "ojs/ojvalidationgroup", "ojs/ojdialog", "ojs/ojdefer", "ojs/ojpopup"],
-    function(accUtils, ko, AnimationUtils, ArrayDataProvider, AsyncRegExpValidator) {
+define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarraydataprovider", "ojs/ojasyncvalidator-regexp", "ojs/ojknockout", "ojs/ojtable", "ojs/ojcheckboxset", "ojs/ojinputnumber", "ojs/ojinputtext", "ojs/ojdialog", "ojs/ojbutton", "ojs/ojformlayout", "ojs/ojselectsingle", "ojs/ojmessages", "ojs/ojvalidationgroup", "ojs/ojdialog", "ojs/ojdefer", "ojs/ojpopup"],
+    function(accUtils, ko, app, AnimationUtils, ArrayDataProvider, AsyncRegExpValidator) {
         function DashboardViewModel() {
             // Below are a set of the ViewModel methods invoked by the oj-module component.
             // Please reference the oj-module jsDoc for additional information.
@@ -56,6 +56,14 @@ define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "o
                 this.workingId = ko.observable("");
 
                 this.vncPass = ko.observable("");
+
+                this.instanceOwner = ko.observable(app.userLogin())
+
+                app.userLogin.subscribe(newValue => {
+                    this.instanceOwner(newValue)
+                    console.log(this.instanceOwner())
+                })
+
 
                 //validator for instance name
                 this.groupValid = ko.observable("invalidHidden");
@@ -146,7 +154,7 @@ define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "o
                         this.messagesDataproviderInfo(new ArrayDataProvider(this.messagesInfo));
                         this.instanceAddInfo(true)
                             //Call the API
-                        createInstance(this.newInstanceName(), this.newInstanceShape())
+                        createInstance(this.newInstanceName(), this.newInstanceShape(), this.instanceOwner())
                     }
                 };
 
@@ -195,12 +203,19 @@ define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "o
 
                 //function to get all Instances
                 const getInstances = () => {
-                    var requestOptions = {
-                        method: 'GET',
-                        redirect: 'follow'
-                    };
+                    var myHeaders = new Headers()
+                    myHeaders.append("Content-Type", "application/json")
 
-                    fetch(baseUrl + "/instances", requestOptions)
+                    var raw = JSON.stringify({ "instanceOwner": this.instanceOwner() })
+
+                    var requestOptions = {
+                        method: 'POST',
+                        headers: myHeaders,
+                        body: raw,
+                        redirect: 'follow'
+                    }
+
+                    fetch(baseUrl + "/getinstances", requestOptions)
                         .then(response => {
                             if (!response.ok) {
                                 return response.text().then(text => { throw text })
@@ -254,7 +269,10 @@ define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "o
 
                 //get data from endpoint
                 this.dataprovider = ko.observable()
-                getInstances()
+
+                app.userLogin.subscribe(newValue => {
+                    getInstances()
+                })
 
                 this.checkConnection = function(state) {
                     if (state === "RUNNING") return false
@@ -293,6 +311,7 @@ define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "o
                         method: 'GET',
                         redirect: 'follow'
                     };
+
                     setTimeout(() => {
                         getInstances()
                     }, 2000);
@@ -340,32 +359,39 @@ define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "o
                 }
 
                 //function to create new Instance
-                const createInstance = (name, shape) => {
+                const createInstance = (name, shape, owner) => {
+
+                    this.close()
+
                     var myHeaders = new Headers();
                     myHeaders.append("Content-Type", "application/json");
 
-                    var raw = JSON.stringify({ "instanceName": name, "instanceShape": shape });
+                    var raw = JSON.stringify({ "instanceName": name, "instanceShape": shape, "instanceOwner": owner });
 
                     //disable button
-                    this.disableAdd(true)
+                    //this.disableAdd(true)
+
+                    //reset the form fields
+                    this.newInstanceName("")
+                    this.newInstanceShape("")
+
+                    setTimeout(() => {
+                        getInstances()
+                    }, 2000);
 
                     var requestOptionsCreate = {
                         method: 'POST',
                         headers: myHeaders,
                         body: raw,
                         redirect: 'follow'
-                    };
+                    }
 
                     fetch(baseUrl + "/instances", requestOptionsCreate)
                         .then(response => {
                             if (!response.ok) {
-                                this.close()
-                                    //reset the form fields
-                                this.newInstanceName("")
-                                this.newInstanceShape("")
-                                    //enable button
-                                this.disableAdd(false)
-                                    //hide messages
+                                //enable button
+                                //this.disableAdd(false)
+                                //hide messages
                                 this.instanceAddInfo(false)
                                 this.instanceAddConfirmation(false)
                                 return response.text().then(text => { throw text })
@@ -373,10 +399,6 @@ define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "o
                             return response.text();
                         })
                         .then(result => {
-                            //reset the form fields
-                            this.newInstanceName("")
-                            this.newInstanceShape("")
-
                             //get the VNC password
                             let resp = JSON.parse(result)
                             this.vncPass(resp.password)
@@ -386,7 +408,8 @@ define(['accUtils', "knockout", "ojs/ojanimation", "ojs/ojarraydataprovider", "o
                                 severity: "confirmation",
                                 summary: "The instance has been successfully provisioned.",
                                 timestamp: isoTimeNow,
-                                closeAffordance: "none"
+                                closeAffordance: "none",
+                                autoTimeout: parseInt(this.messageTimeout(), 10)
                             }];
                             this.messagesDataproviderConfirmation(new ArrayDataProvider(this.messagesConfirmation))
                             this.instanceAddInfo(false)
