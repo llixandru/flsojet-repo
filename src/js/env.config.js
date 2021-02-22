@@ -15,7 +15,7 @@ define(['knockout'],
 
             //App-wide variables go here
 
-            //API URL
+            //Endpoint API URL
             this.loginURL = "http://localhost:3000"
             this.apiURL = this.loginURL + "/oci"
 
