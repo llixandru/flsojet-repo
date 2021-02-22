@@ -8,8 +8,8 @@
 /*
  * Your dashboard ViewModel code goes here
  */
-define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarraydataprovider", "ojs/ojasyncvalidator-regexp", "ojs/ojknockout", "ojs/ojtable", "ojs/ojcheckboxset", "ojs/ojinputnumber", "ojs/ojinputtext", "ojs/ojdialog", "ojs/ojbutton", "ojs/ojformlayout", "ojs/ojselectsingle", "ojs/ojmessages", "ojs/ojvalidationgroup", "ojs/ojdialog", "ojs/ojdefer", "ojs/ojpopup"],
-    function(accUtils, ko, app, AnimationUtils, ArrayDataProvider, AsyncRegExpValidator) {
+define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarraydataprovider", "ojs/ojasyncvalidator-regexp", '../env.config', "ojs/ojknockout", "ojs/ojtable", "ojs/ojcheckboxset", "ojs/ojinputnumber", "ojs/ojinputtext", "ojs/ojdialog", "ojs/ojbutton", "ojs/ojformlayout", "ojs/ojselectsingle", "ojs/ojmessages", "ojs/ojvalidationgroup", "ojs/ojdialog", "ojs/ojdefer", "ojs/ojpopup"],
+    function(accUtils, ko, app, AnimationUtils, ArrayDataProvider, AsyncRegExpValidator, config) {
         function DashboardViewModel() {
             // Below are a set of the ViewModel methods invoked by the oj-module component.
             // Please reference the oj-module jsDoc for additional information.
@@ -28,7 +28,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 // Implement further logic if needed
                 let self = this
                     //NodeJS API
-                let baseUrl = "https://localhost:3000/oci"
+                let baseUrl = config.apiURL
 
                 //messages
                 const isoTimeNow = new Date().toISOString();

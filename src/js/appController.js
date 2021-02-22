@@ -8,8 +8,8 @@
 /*
  * Your application specific code will go here
  */
-define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojresponsiveutils', 'ojs/ojresponsiveknockoututils', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojknockoutrouteradapter', 'ojs/ojurlparamadapter', 'ojs/ojarraydataprovider', 'ojs/ojknockouttemplateutils', 'ojs/ojmodule-element', 'ojs/ojknockout', 'ojs/ojselectsingle'],
-    function(ko, Context, moduleUtils, ResponsiveUtils, ResponsiveKnockoutUtils, CoreRouter, ModuleRouterAdapter, KnockoutRouterAdapter, UrlParamAdapter, ArrayDataProvider, KnockoutTemplateUtils) {
+define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojresponsiveutils', 'ojs/ojresponsiveknockoututils', 'ojs/ojcorerouter', 'ojs/ojmodulerouter-adapter', 'ojs/ojknockoutrouteradapter', 'ojs/ojurlparamadapter', 'ojs/ojarraydataprovider', 'ojs/ojknockouttemplateutils', 'env.config', 'ojs/ojmodule-element', 'ojs/ojknockout', 'ojs/ojselectsingle'],
+    function(ko, Context, moduleUtils, ResponsiveUtils, ResponsiveKnockoutUtils, CoreRouter, ModuleRouterAdapter, KnockoutRouterAdapter, UrlParamAdapter, ArrayDataProvider, KnockoutTemplateUtils, config) {
 
         function ControllerViewModel() {
 
@@ -24,19 +24,6 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojrespon
                 this.message(event.detail.message);
                 this.manner(event.detail.manner);
             };
-
-            this.domain = "dev-68999355.okta.com"
-            this.oktaSignIn = new OktaSignIn({
-                baseUrl: "https://dev-68999355.okta.com",
-                clientId: "0oa55av80khTm3IDS5d6",
-                redirectUri: 'http://localhost:8000/?ojr=dashboard',
-                postLogoutRedirectUri: 'http://localhost:8000/?ojr=login',
-                authParams: {
-                    issuer: "https://dev-68999355.okta.com/oauth2/default",
-                    responseType: ['id_token', 'token'],
-                    scopes: ['openid', 'email', 'profile']
-                }
-            });
 
 
             document.getElementById('globalBody').addEventListener('announce', announcementHandler, false);
@@ -71,14 +58,43 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojrespon
             var self = this
             self.userLogin = ko.observable()
 
-            this.oktaSignIn.authClient.token.getUserInfo().then(function(user) {
-                //route to dashboard and set user
-                self.userLogin(user.email)
-            }, error => {
-                this.router.go({ path: 'login' })
-                    .then(function() {
-                        this.navigated = true;
-                    })
+            // Initializing Auth0Lock
+            self.lock = new Auth0Lock(
+                config.clientId,
+                config.domain
+            )
+
+            // Listening for the authenticated event
+            self.lock.on("authenticated", function(authResult) {
+                self.lock.hide()
+                    // Use the token in authResult to getUserInfo() and save it if necessary
+                self.lock.getUserInfo(authResult.accessToken, function(error, profile) {
+                    self.userLogin(profile.email)
+                    self.router.go({ path: 'dashboard' })
+                        .then(function() {
+                            this.navigated = true;
+                        })
+                    if (error) {
+                        // Handle error
+                        self.router.go({ path: 'login' })
+                            .then(function() {
+                                this.navigated = true;
+                            })
+                    }
+                })
+            })
+
+            self.lock.checkSession({}, function(err, authResult) {
+                // handle error or new tokens
+                if (authResult) self.lock.getUserInfo(authResult.accessToken, function(error, profile) {
+                    self.userLogin(profile.email)
+                })
+                if (err) {
+                    self.router.go({ path: 'login' })
+                        .then(function() {
+                            this.navigated = true;
+                        })
+                }
             })
 
             self.userLogin.subscribe(newValue => {
@@ -89,12 +105,7 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojrespon
             this.logout = () => {
                 self.userLogin("")
                 this.disabledMenu(true)
-                this.oktaSignIn.authClient.tokenManager.clear()
-                this.router.go({ path: 'login' })
-                    .then(function() {
-                        this.navigated = true;
-                    })
-
+                self.lock.logout()
             }
 
             //Get JWT Token
@@ -102,29 +113,24 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojrespon
 
             this.authToJWT = function() {
                 return new Promise((resolve, reject) => {
-                    var myHeaders = new Headers();
-                    myHeaders.append("Content-Type", "application/json");
+                    var myHeaders = new Headers()
+                    myHeaders.append("Content-Type", "application/json")
 
-                    var raw = JSON.stringify({ "email": self.userLogin(), "password": "JUST#test#2021" });
+                    var raw = JSON.stringify({ "client_id": config.apiClientId, "client_secret": config.apiClientSecret, "audience": config.apiAudience, "grant_type": config.apiGrantType })
 
                     var requestOptions = {
                         method: 'POST',
                         headers: myHeaders,
-                        body: raw,
-                        redirect: 'follow'
-                    };
+                        body: raw
+                    }
 
-                    fetch("https://localhost:3000/auth", requestOptions)
+                    fetch(config.apiTokenURL + "/oauth/token", requestOptions)
                         .then(response => response.text())
                         .then(result => {
-                            let data = JSON.parse(result)
-                            let token = "Bearer " + data.token
-                            resolve(token)
-                            this.apiToken()
+                            let token = JSON.parse(result)
+                            resolve("Bearer " + token.access_token)
                         })
-                        .catch(error => {
-                            reject(error)
-                        })
+                        .catch(error => reject(error))
                 })
             }
 

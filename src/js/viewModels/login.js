@@ -25,32 +25,9 @@ define(['accUtils', 'appController'],
             this.connected = () => {
                 accUtils.announce('Login page loaded.');
                 document.title = "Login";
+                let self = this;
                 // Implement further logic if needed
-
-                app.oktaSignIn.authClient.token.getUserInfo().then(function(user) {
-                    //route to dashboard and set user
-                    app.userLogin(user.email)
-                    app.router.go({ path: 'dashboard' })
-                        .then(function() {
-                            this.navigated = true;
-                        })
-                }, function(error) {
-                    app.oktaSignIn.showSignInToGetTokens({
-                        el: '#okta-login-container'
-                    }).then(function(tokens) {
-                        app.oktaSignIn.authClient.tokenManager.setTokens(tokens);
-                        app.oktaSignIn.remove();
-                        const idToken = tokens.idToken;
-                        app.userLogin(idToken.claims.email)
-                        app.router.go({ path: 'dashboard' })
-                            .then(function() {
-                                this.navigated = true;
-                            })
-                    }).catch(function(err) {
-                        console.error(err);
-                    });
-                });
-
+                app.lock.show()
             };
 
             /**
