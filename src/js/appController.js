@@ -59,9 +59,14 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojrespon
             self.userLogin = ko.observable()
 
             // Initializing Auth0Lock
+            const options = {
+                allowSignUp: false,
+                closable: false
+            }
             self.lock = new Auth0Lock(
                 config.clientId,
-                config.domain
+                config.domain,
+                options
             )
 
             // Listening for the authenticated event
@@ -135,15 +140,35 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojrespon
             }
 
             //Region selection
-            this.selectedRegion = ko.observable("eu-frankfurt-1");
-            this.regionList = [
-                { value: "eu-frankfurt-1", label: "Germany Central (Frankfurt)" },
-                { value: "jp-tokyo-1", label: "Japan East (Tokyo)" },
-                { value: "uk-south-1", label: "UK South" }
-            ];
-            this.regions = new ArrayDataProvider(this.regionList, {
-                keyAttributes: "value",
-            })
+            this.selectedRegion = ko.observable()
+            this.regions = ko.observable()
+
+            //Get Current Region
+            async function getCurrentRegion() {
+                var myHeaders = new Headers()
+                let token = await self.authToJWT()
+                myHeaders.append("Content-Type", "application/json");
+                myHeaders.append("Authorization", token)
+                var requestOptions = {
+                    method: 'GET',
+                    headers: myHeaders,
+                    redirect: 'follow'
+                }
+
+                fetch(config.apiURL + "/currentregion", requestOptions)
+                    .then(response => response.text())
+                    .then(result => {
+                        self.selectedRegion(JSON.parse(result))
+                    })
+                    .catch(error => console.log('error', error));
+            }
+
+
+            getCurrentRegion()
+
+            this.getItemText = (itemContext) => {
+                return `${itemContext.data.regionName}`
+            }
 
             // Footer
             this.footerLinks = [

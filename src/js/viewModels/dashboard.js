@@ -64,6 +64,10 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                     self.instanceOwner(newValue)
                 })
 
+                app.selectedRegion.subscribe(newRegion => {
+                    changeRegion(newRegion)
+                })
+
 
                 //validator for instance name
                 this.groupValid = ko.observable("invalidHidden");
@@ -207,7 +211,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 getShapes()
 
                 this.getItemText = (itemContext) => {
-                    return `${itemContext.data.shape}`;
+                    return `${itemContext.data.shape}`
                 };
 
                 var options = [];
@@ -456,8 +460,8 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                             this.disableAdd(false)
                         })
                         .catch(error => {
-                            //console.log('error', error)
-                            onRejected(error)
+                            console.log('error', error)
+                                //onRejected(error)
                         });
                 }
 
@@ -499,12 +503,67 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                         });
                 }
 
+                async function listRegions() {
+                    var myHeaders = new Headers()
+                    let token = await app.authToJWT()
+                    myHeaders.append("Content-Type", "application/json")
+                    myHeaders.append("Authorization", token)
+
+                    var requestOptions = {
+                        method: 'GET',
+                        headers: myHeaders,
+                        redirect: 'follow'
+                    }
+
+                    fetch(baseUrl + "/regions", requestOptions)
+                        .then(response => response.text())
+                        .then(result => {
+                            let data = JSON.parse(result)
+                            app.regions(new ArrayDataProvider(data.items, {
+                                keyAttributes: "regionName"
+                            }))
+                        })
+                        .catch(error => onRejected(error))
+                }
+
+                listRegions()
+
+                //change region
+                async function changeRegion(region) {
+                    var myHeaders = new Headers()
+                    let token = await app.authToJWT()
+                    myHeaders.append("Content-Type", "application/json")
+                    myHeaders.append("Authorization", token)
+
+                    var raw = JSON.stringify({ "region": region })
+
+                    var requestOptions = {
+                        method: 'POST',
+                        headers: myHeaders,
+                        body: raw,
+                        redirect: 'follow'
+                    };
+
+                    fetch(baseUrl + "/regions", requestOptions)
+                        .then(response => response.text())
+                        .then(result => {
+                            getInstances()
+                        })
+                        .catch(error => {
+                            getInstances()
+                            onRejected(error)
+                        })
+                }
+
                 //error handling
                 const onRejected = err => {
                     let error = JSON.parse(err)
+                    let message = error.error.serviceCode
+                    if (error.error.serviceCode == "NotAuthorizedOrNotFound")
+                        message = "No data found"
                     this.messagesError = [{
                         severity: "error",
-                        summary: error.error.statusCode + ": " + error.error.serviceCode,
+                        summary: error.error.statusCode + ": " + message,
                         timestamp: isoTimeNow,
                         closeAffordance: "none",
                         autoTimeout: parseInt(this.messageTimeout(), 10)
