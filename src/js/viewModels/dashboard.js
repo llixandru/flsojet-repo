@@ -137,7 +137,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
 
                     const start = async() => {
                         await asyncForEach(instanceIds, async(id) => {
-                            await deleteInstance(app.selectedRegion(), id)
+                            await deleteInstance(id)
                         })
                     }
                     start()
