@@ -377,7 +377,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                     var raw = JSON.stringify({ "region": app.selectedRegion(), "instanceId": id })
 
                     var requestOptions = {
-                        method: 'GET',
+                        method: 'POST',
                         headers: myHeaders,
                         body: raw
                     };
