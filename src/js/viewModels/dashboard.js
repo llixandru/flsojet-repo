@@ -65,7 +65,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 })
 
                 app.selectedRegion.subscribe(newRegion => {
-                    getInstances(newRegion)
+                    getInstances()
                 })
 
                 //validator for instance name
