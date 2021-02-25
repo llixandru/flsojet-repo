@@ -65,9 +65,8 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 })
 
                 app.selectedRegion.subscribe(newRegion => {
-                    changeRegion(newRegion)
+                    getInstances(newRegion)
                 })
-
 
                 //validator for instance name
                 this.groupValid = ko.observable("invalidHidden");
@@ -138,7 +137,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
 
                     const start = async() => {
                         await asyncForEach(instanceIds, async(id) => {
-                            await deleteInstance(id)
+                            await deleteInstance(app.selectedRegion(), id)
                         })
                     }
                     start()
@@ -186,9 +185,12 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                     myHeaders.append("Content-Type", "application/json")
                     myHeaders.append("Authorization", token)
 
+                    var raw = JSON.stringify({ "region": app.selectedRegion() })
+
                     var requestOptionsShape = {
-                        method: 'GET',
-                        headers: myHeaders
+                        method: 'POST',
+                        headers: myHeaders,
+                        body: raw
                     };
 
                     fetch(baseUrl + "/shapes", requestOptionsShape)
@@ -223,7 +225,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                     myHeaders.append("Content-Type", "application/json")
                     myHeaders.append("Authorization", token)
 
-                    var raw = JSON.stringify({ "instanceOwner": self.instanceOwner() })
+                    var raw = JSON.stringify({ "region": app.selectedRegion(), "instanceOwner": self.instanceOwner() })
 
                     var requestOptions = {
                         method: 'POST',
@@ -263,12 +265,15 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                     myHeaders.append("Content-Type", "application/json")
                     myHeaders.append("Authorization", token)
 
+                    var raw = JSON.stringify({ "region": app.selectedRegion(), "instanceId": id })
+
                     var requestOptions = {
-                        method: 'GET',
-                        headers: myHeaders
+                        method: 'POST',
+                        headers: myHeaders,
+                        body: raw
                     };
 
-                    fetch(baseUrl + "/publicip/" + id, requestOptions)
+                    fetch(baseUrl + "/publicip", requestOptions)
                         .then(response => {
                             if (!response.ok) {
                                 return response.text().then(text => { throw text })
@@ -335,16 +340,19 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                     myHeaders.append("Content-Type", "application/json")
                     myHeaders.append("Authorization", token)
 
+                    var raw = JSON.stringify({ "region": app.selectedRegion(), "instanceId": id })
+
                     var requestOptions = {
-                        method: 'GET',
-                        headers: myHeaders
+                        method: 'POST',
+                        headers: myHeaders,
+                        body: raw
                     };
 
                     setTimeout(() => {
                         getInstances()
                     }, 2000);
 
-                    fetch(baseUrl + "/start/" + id, requestOptions)
+                    fetch(baseUrl + "/start", requestOptions)
                         .then(response => {
                             if (!response.ok) {
                                 return response.text().then(text => { throw text })
@@ -366,16 +374,19 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                     myHeaders.append("Content-Type", "application/json")
                     myHeaders.append("Authorization", token)
 
+                    var raw = JSON.stringify({ "region": app.selectedRegion(), "instanceId": id })
+
                     var requestOptions = {
                         method: 'GET',
-                        headers: myHeaders
+                        headers: myHeaders,
+                        body: raw
                     };
 
                     setTimeout(() => {
                         getInstances()
                     }, 2000);
 
-                    fetch(baseUrl + "/stop/" + id, requestOptions)
+                    fetch(baseUrl + "/stop", requestOptions)
                         .then(response => {
                             if (!response.ok) {
                                 return response.text().then(text => { throw text })
@@ -401,7 +412,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                     myHeaders.append("Content-Type", "application/json");
                     myHeaders.append("Authorization", token)
 
-                    var raw = JSON.stringify({ "instanceName": name, "instanceShape": shape, "instanceOwner": owner });
+                    var raw = JSON.stringify({ "region": app.selectedRegion(), "instanceName": name, "instanceShape": shape, "instanceOwner": owner })
 
                     self.createdInstance(name)
 
@@ -471,15 +482,18 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                     myHeaders.append("Content-Type", "application/json");
                     myHeaders.append("Authorization", token)
 
+                    var raw = JSON.stringify({ "region": app.selectedRegion(), "instanceId": id })
+
                     var requestOptions = {
                         method: 'DELETE',
-                        headers: myHeaders
+                        headers: myHeaders,
+                        body: raw
                     };
 
                     self.messagesConfirmationDeletion = [];
                     self.messagesDataproviderConfirmationDeletion(new ArrayDataProvider(self.messagesConfirmationDeletion))
 
-                    fetch(baseUrl + "/instances/" + id, requestOptions)
+                    fetch(baseUrl + "/instances", requestOptions)
                         .then(response => {
                             if (!response.ok) {
                                 return response.text().then(text => { throw text })
@@ -527,33 +541,6 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 }
 
                 listRegions()
-
-                //change region
-                async function changeRegion(region) {
-                    var myHeaders = new Headers()
-                    let token = await app.authToJWT()
-                    myHeaders.append("Content-Type", "application/json")
-                    myHeaders.append("Authorization", token)
-
-                    var raw = JSON.stringify({ "region": region })
-
-                    var requestOptions = {
-                        method: 'POST',
-                        headers: myHeaders,
-                        body: raw,
-                        redirect: 'follow'
-                    };
-
-                    fetch(baseUrl + "/regions", requestOptions)
-                        .then(response => response.text())
-                        .then(result => {
-                            getInstances()
-                        })
-                        .catch(error => {
-                            getInstances()
-                            onRejected(error)
-                        })
-                }
 
                 //error handling
                 const onRejected = err => {
