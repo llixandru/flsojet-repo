@@ -146,9 +146,9 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojrespon
             //Get Current Region
             async function getCurrentRegion() {
                 var myHeaders = new Headers()
-                let token = await self.authToJWT()
+                    //let token = await self.authToJWT()
                 myHeaders.append("Content-Type", "application/json");
-                myHeaders.append("Authorization", token)
+                //myHeaders.append("Authorization", token)
                 var requestOptions = {
                     method: 'GET',
                     headers: myHeaders,

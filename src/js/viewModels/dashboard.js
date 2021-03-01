@@ -181,10 +181,10 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 self.shapes = ko.observable()
 
                 async function getShapes() {
-                    let token = await app.authToJWT()
+                    //let token = await app.authToJWT()
                     var myHeaders = new Headers();
                     myHeaders.append("Content-Type", "application/json")
-                    myHeaders.append("Authorization", token)
+                        //myHeaders.append("Authorization", token)
 
                     var raw = JSON.stringify({ "region": app.selectedRegion() })
 
@@ -221,10 +221,10 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
 
                 //function to get all Instances
                 async function getInstances() {
-                    let token = await app.authToJWT()
+                    //let token = await app.authToJWT()
                     var myHeaders = new Headers()
                     myHeaders.append("Content-Type", "application/json")
-                    myHeaders.append("Authorization", token)
+                        //myHeaders.append("Authorization", token)
 
                     var raw = JSON.stringify({ "region": app.selectedRegion(), "instanceOwner": self.instanceOwner() })
 
@@ -262,9 +262,9 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
 
                 async function getIPAddress(id) {
                     var myHeaders = new Headers()
-                    let token = await app.authToJWT()
+                        //let token = await app.authToJWT()
                     myHeaders.append("Content-Type", "application/json")
-                    myHeaders.append("Authorization", token)
+                        //myHeaders.append("Authorization", token)
 
                     var raw = JSON.stringify({ "region": app.selectedRegion(), "instanceId": id })
 
@@ -337,9 +337,9 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 async function startImage(id) {
 
                     var myHeaders = new Headers()
-                    let token = await app.authToJWT()
+                        //let token = await app.authToJWT()
                     myHeaders.append("Content-Type", "application/json")
-                    myHeaders.append("Authorization", token)
+                        //myHeaders.append("Authorization", token)
 
                     var raw = JSON.stringify({ "region": app.selectedRegion(), "instanceId": id })
 
@@ -371,9 +371,9 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
 
                 async function stopImage(id) {
                     var myHeaders = new Headers()
-                    let token = await app.authToJWT()
+                        //let token = await app.authToJWT()
                     myHeaders.append("Content-Type", "application/json")
-                    myHeaders.append("Authorization", token)
+                        //myHeaders.append("Authorization", token)
 
                     var raw = JSON.stringify({ "region": app.selectedRegion(), "instanceId": id })
 
@@ -409,9 +409,9 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                     self.close()
 
                     var myHeaders = new Headers();
-                    let token = await app.authToJWT()
+                    //let token = await app.authToJWT()
                     myHeaders.append("Content-Type", "application/json");
-                    myHeaders.append("Authorization", token)
+                    //myHeaders.append("Authorization", token)
 
                     var raw = JSON.stringify({ "region": app.selectedRegion(), "instanceName": name, "instanceShape": shape, "instanceOwner": owner })
 
@@ -479,9 +479,9 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
 
                 async function deleteInstance(id) {
                     var myHeaders = new Headers();
-                    let token = await app.authToJWT()
+                    //let token = await app.authToJWT()
                     myHeaders.append("Content-Type", "application/json");
-                    myHeaders.append("Authorization", token)
+                    //myHeaders.append("Authorization", token)
 
                     var raw = JSON.stringify({ "region": app.selectedRegion(), "instanceId": id })
 
@@ -520,9 +520,9 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
 
                 async function listRegions() {
                     var myHeaders = new Headers()
-                    let token = await app.authToJWT()
+                        //let token = await app.authToJWT()
                     myHeaders.append("Content-Type", "application/json")
-                    myHeaders.append("Authorization", token)
+                        //myHeaders.append("Authorization", token)
 
                     var requestOptions = {
                         method: 'GET',
