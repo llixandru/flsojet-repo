@@ -41,7 +41,12 @@
           </td>
           <td>
             <div id="instName">
-              <oj-bind-text value="[[row.data.displayName]]"></oj-bind-text>
+              <oj-bind-if id="instanceNameCheck" test="[[row.data.freeformTags.displayName]]">
+                <oj-bind-text value="[[row.data.freeformTags.displayName]]"></oj-bind-text>
+              </oj-bind-if>
+              <oj-bind-if id="instanceNameCheck2" test="[[!row.data.freeformTags.displayName]]">
+                <oj-bind-text value="[[row.data.displayName]]"></oj-bind-text>
+              </oj-bind-if>
             </div>
           </td>
           <td>
@@ -114,7 +119,7 @@
                         <p>Your VNC password for instance <b><oj-bind-text :id="instanceid + [[createdInstance]]" value="[[createdInstance]]">
                         </oj-bind-text></b> is <b><oj-bind-text :id="vncpass + [[vncPass]]" value="[[vncPass]]">
                         </oj-bind-text></b></p>
-                        <p>Please write down this password as it will not be shown again.</p>
+                        <p>This password has also been sent to you via email.</p>
                     </div>
                     <div class="demo-popup-footer">
                         <oj-button id="btnCancel" on-oj-action="[[cancelListener]]">

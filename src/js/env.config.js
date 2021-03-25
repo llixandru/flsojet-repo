@@ -20,13 +20,13 @@ define(['knockout'],
             this.apiURL = this.loginURL + "/oci"
 
             //Auth0 Config
-            this.clientId = 'jTYymBAspIRRP55D9pRCsovEToivoWJp'
-            this.domain = 'dev-bbijppeg.eu.auth0.com'
+            this.clientId = 'GPAwGSSAy00PrGwzzXED2vd3g6cceYGI'
+            this.domain = 'liana.eu.auth0.com'
 
             //JWT Token config
-            this.apiTokenURL = "https://dev-bbijppeg.eu.auth0.com"
-            this.apiClientId = "RzZGTLuU3iS1yxBOd9qBWNiVfiCYwL8n"
-            this.apiClientSecret = "sBRoQzSdSKZjvvBtFNBd-nczIcUDOGHCXVg-vT7GsJ8UeElSleyy5pEyGpSu1QOa"
+            this.apiTokenURL = "https://liana.eu.auth0.com"
+            this.apiClientId = "DGwCNOwo4lyvxMyYzF9lvcBxFXZNjx56"
+            this.apiClientSecret = "E9nK6TB0iKj33Je4LqFxgxLgzkhaKge4xxwoTZnYiV49hjwNwR3Dkv2hIxsqyX4Q"
                 //this.apiClientId = "lVlSqK9oX1Ugdk49qMtgFYbbBK5Vsr6I" //SSL
                 //this.apiClientSecret = "xS-qz3syem6XbiUDHoDrhsQFt7sRZNdCD2_tuW99COSc6RSABoCrAPZKgcgq4d9i" //SSL
             this.apiAudience = this.loginURL
