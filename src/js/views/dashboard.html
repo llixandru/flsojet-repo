@@ -81,9 +81,15 @@
       </template>
             </oj-table>
             <br /><br />
+            <h6>You can provision
+                <span :class="[[checkNumber]]">
+                    <oj-bind-text id="allowedNumberLeft" value="[[allowedNumberLeft]]">
+                    </oj-bind-text>
+                  </span> more instance(s).</h6>
+            <br />
             <oj-button id="deleteinst_btn" disabled="[[!somethingChecked()]]" on-oj-action="[[removeInstance]]">Delete Selected Instance(s)
             </oj-button>
-            <oj-button id="buttonOpener" on-oj-action="[[open]]">
+            <oj-button id="buttonOpener" on-oj-action="[[open]]" disabled="[[disableAdd]]">
                 Create New Instance
             </oj-button>
         </div>

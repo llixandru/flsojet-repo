@@ -57,6 +57,8 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
 
                 this.vncPass = ko.observable("");
                 this.createdInstance = ko.observable("");
+                this.allowedNumberLeft = ko.observable();
+                this.checkNumber = ko.observable("text-normal")
 
                 self.instanceOwner = ko.observable(app.userLogin())
 
@@ -243,7 +245,12 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                             return response.text();
                         })
                         .then(result => {
-                            self.dataprovider(new ArrayDataProvider(JSON.parse(result), {
+                            let res = JSON.parse(result)
+                            self.allowedNumberLeft(res.allowedNumberLeft)
+                                //disable button check
+                            self.allowedNumberLeft() === 0 ? self.disableAdd(true) : self.disableAdd(false)
+                            self.allowedNumberLeft() === 0 ? self.checkNumber("text-red") : self.checkNumber("text-green")
+                            self.dataprovider(new ArrayDataProvider(res.listInstances, {
                                 keyAttributes: "id",
                                 implicitSort: [{ attribute: "id", direction: "ascending" }],
                             }))
@@ -283,7 +290,8 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                         })
                         .then(result => {
                             let uri = encodeURIComponent(JSON.parse(result))
-                            let url = new URL("http://" + uri)
+                                //let url = new URL("http://" + uri)
+                            let url = new URL("https://" + uri + "/vnc.html?host=" + uri + "&port=443&resize=remote")
                             window.open(url)
                         })
                         .catch(error => {

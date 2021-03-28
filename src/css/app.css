@@ -52,6 +52,14 @@
     height: 25rem; */
 }
 
+.text-red {
+    color: red;
+}
+
+.text-green {
+    color: green;
+}
+
 .demo-text-field-info {
     --oj-text-field-border-color: transparent;
     --oj-text-field-text-color: rgb(var(--oj-palette-info-rgb-110));
