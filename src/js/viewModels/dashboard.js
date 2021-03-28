@@ -76,7 +76,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                 this.patternValue = ko.observable("");
                 this.validators = [
                     new AsyncRegExpValidator({
-                        pattern: "[a-zA-Z0-9_]{6,20}",
+                        pattern: "[a-zA-Z0-9_-]{6,20}",
                         hint: "Enter between 6 and 20 letters or numbers and underscore.",
                         messageDetail: "Enter between 6 and 20 letters or numbers and underscore.",
                         autoTimeout: parseInt(this.messageTimeout(), 10)
