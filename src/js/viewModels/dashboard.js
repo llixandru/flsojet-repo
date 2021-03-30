@@ -426,7 +426,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                     self.createdInstance(name)
 
                     //disable button
-                    this.disableAdd(true)
+                    self.disableAdd(true)
 
                     //reset the form fields
                     self.newInstanceName("")
@@ -446,7 +446,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                         .then(response => {
                             if (!response.ok) {
                                 //enable button
-                                this.disableAdd(false)
+                                self.disableAdd(false)
                                     //hide messages
                                 self.instanceAddInfo(false)
                                 self.instanceAddConfirmation(false)
@@ -477,7 +477,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                             //refresh the list
                             getInstances()
                                 //enable button
-                            this.disableAdd(false)
+                            self.disableAdd(false)
                         })
                         .catch(error => {
                             console.log('error', error)
