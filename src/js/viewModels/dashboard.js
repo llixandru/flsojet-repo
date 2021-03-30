@@ -162,6 +162,8 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                         this.instanceAddInfo(true)
                             //Call the API
                         createInstance(this.newInstanceName(), this.newInstanceShape(), self.instanceOwner())
+                            //disable button
+                        self.disableAdd(true)
                     }
                 };
 
@@ -248,7 +250,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                             let res = JSON.parse(result)
                             self.allowedNumberLeft(res.allowedNumberLeft)
                                 //disable button check
-                            self.allowedNumberLeft() === 0 ? self.disableAdd(true) : self.disableAdd(false)
+                            if (self.allowedNumberLeft() === 0) self.disableAdd(true)
                             self.allowedNumberLeft() === 0 ? self.checkNumber("text-red") : self.checkNumber("text-green")
                             self.dataprovider(new ArrayDataProvider(res.listInstances, {
                                 keyAttributes: "id",
@@ -425,9 +427,6 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
 
                     self.createdInstance(name)
 
-                    //disable button
-                    self.disableAdd(true)
-
                     //reset the form fields
                     self.newInstanceName("")
                     self.newInstanceShape("")
@@ -446,8 +445,8 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                         .then(response => {
                             if (!response.ok) {
                                 //enable button
-                                self.disableAdd(false)
-                                    //hide messages
+                                //self.disableAdd(false)
+                                //hide messages
                                 self.instanceAddInfo(false)
                                 self.instanceAddConfirmation(false)
                                 return response.text().then(text => { throw text })
@@ -518,6 +517,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                                 closeAffordance: "none"
                             })
                             self.instanceDeleteInfo(true)
+                            self.disableAdd(false)
                             getInstances()
                         })
                         .catch(error => {
