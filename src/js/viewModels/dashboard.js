@@ -426,7 +426,7 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                     self.createdInstance(name)
 
                     //disable button
-                    //this.disableAdd(true)
+                    this.disableAdd(true)
 
                     //reset the form fields
                     self.newInstanceName("")
@@ -446,8 +446,8 @@ define(['accUtils', "knockout", "appController", "ojs/ojanimation", "ojs/ojarray
                         .then(response => {
                             if (!response.ok) {
                                 //enable button
-                                //this.disableAdd(false)
-                                //hide messages
+                                this.disableAdd(false)
+                                    //hide messages
                                 self.instanceAddInfo(false)
                                 self.instanceAddConfirmation(false)
                                 return response.text().then(text => { throw text })
